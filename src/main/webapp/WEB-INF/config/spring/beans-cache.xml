@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.2.xsd">
+
+  <cache:annotation-driven cache-manager="ychSHCMCache"/>
+
+  <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="configLocation" value="classpath:ehcache.xml" />
+  </bean>
+
+    <bean id="ychSHCMCache" class="com.ych.core.ehcache.EhCacheCacheManagerExtended">
+        <property name="cacheManager" ref="ehcache" />
+        <property name="transactionAware" value="true" />
+    </bean>
+
+    <alias name="ychSHCMCache" alias="cacheManager"/>
+
+</beans>

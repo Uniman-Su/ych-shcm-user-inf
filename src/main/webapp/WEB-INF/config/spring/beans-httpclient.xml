@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+  <bean id="httpclient.ConnectionManager" class="org.apache.http.impl.conn.PoolingHttpClientConnectionManager">
+    <property name="defaultMaxPerRoute" value="10" />
+    <property name="maxTotal" value="50" />
+  </bean>
+  
+  <bean id="httpclient" class="com.ych.core.httpclient.HttpClientFactoryBean">
+    <property name="connectionManager" ref="httpclient.ConnectionManager" />
+    <property name="soTimeout" value="5000" />
+  </bean>
+
+  <bean id="wxPaySecHttpClient" class="com.ych.core.wechat.pay.HttpClientFactoryBean">
+    <property name="wxPayMerchantId" ref="shcm.o2o.service.systemparamholder.WXPayMerchantId" />
+    <property name="keyStoreResource">
+      <bean class="org.springframework.core.io.FileSystemResource">
+        <constructor-arg index="0" value="${pay.wechat.keyStore.filePath}" />
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="httpclientHelper" class="com.ych.core.httpclient.HttpClientHelper">
+    <property name="connectionRequestTimeout" value="5000" />
+    <property name="connectTimeout" value="10000" />
+    <property name="httpClient" ref="httpclient" />
+  </bean>
+
+  <bean id="httpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+    <property name="httpClient" ref="httpclient" />
+  </bean>
+
+  <bean id="wxPaySecHttpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" >
+    <property name="httpClient" ref="wxPaySecHttpClient" />
+  </bean>
+
+  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+      <property name="requestFactory" ref="httpRequestFactory" />
+  </bean>
+
+  <alias name="restTemplate" alias="ychSHCMRestTemplate" />
+
+  <bean id="wxPaySecRestTemplate" class="org.springframework.web.client.RestTemplate">
+    <property name="requestFactory" ref="wxPaySecHttpRequestFactory" />
+  </bean>
+
+
+</beans>

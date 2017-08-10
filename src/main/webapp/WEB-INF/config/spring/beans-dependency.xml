@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userAccessTokenInfoMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+        <property name="mapperInterface" value="com.ych.core.wechat.mp.authorization.dao.mybatis.UserAccessTokenInfoMapper" />
+    </bean>
+
+    <bean id="systemParameterDao" class="com.ych.core.dao.mybatis.SystemParameterMapper">
+        <property name="sqlSessionTemplate" ref="sqlSession" />
+    </bean>
+
+    <bean id="userAccessTokenInfoDao" class="com.ych.core.wechat.mp.authorization.dao.mybatis.UserAccessTokenInfoDaoImpl">
+        <property name="userAccessTokenInfoMapper" ref="userAccessTokenInfoMapper" />
+    </bean>
+
+    <bean id="systemParameterSvc" class="com.ych.core.service.SystemParameterService">
+        <property name="sysParamDao" ref="systemParameterDao" />
+        <property name="appKey" value="${system.common.appKey}" />
+    </bean>
+
+    <bean id="wxAuthUtils" class="com.ych.core.wechat.mp.authorization.AuthorizationUtils">
+        <property name="restTemplate" ref="restTemplate" />
+    </bean>
+
+    <bean id="wxPayUtils" class="com.ych.core.wechat.pay.WXPayUtils">
+        <property name="restTemplate" ref="restTemplate" />
+        <property name="secureRestTemplate" ref="wxPaySecRestTemplate" />
+        <property name="wxPaySecurityKey" ref="shcm.o2o.service.systemparamholder.WXPaySecurityKey" />
+    </bean>
+
+    <bean id="paymentStrategyMediator" class="com.ych.core.pay.PaymentStrategyMediator">
+        <property name="paymentStrategies">
+            <list>
+                <ref bean="shcm.o2o.service.WXPaymentStrategy" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="wxMPUtils" class="com.ych.core.wechat.mp.WXMPUtils">
+        <property name="restTemplate" ref="restTemplate" />
+        <property name="wxAppId" ref="shcm.o2o.service.systemparamholder.WXMPAppID" />
+        <property name="wxAppSceret" ref="shcm.o2o.service.systemparamholder.WXMPAppSecrect" />
+        <property name="wxAppToken" ref="shcm.o2o.service.systemparamholder.WXMPAppToken" />
+    </bean>
+
+    <bean id="wxMPPushEventHandler" class="com.ych.core.wechat.mp.pushmsg.PushEventHandlerMediator">
+        <property name="eventHandlers">
+            <list>
+                <ref bean="shcm.o2o.service.WXSubscribeHandler" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="wxMPPushMsgHandler" class="com.ych.core.wechat.mp.pushmsg.PushMsgHandlerMediator">
+        <property name="handlers">
+            <list>
+                <ref bean="wxMPPushEventHandler" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="autohomeCarModelSpider" class="com.ych.shcm.o2o.autohome.spider.carmodel.service.CarModelSpider">
+        <property name="restTemplate" ref="restTemplate" />
+        <property name="importModelSvc" ref="shcm.o2o.autohome.spider.carmodel.service.ImportCarModelService" />
+    </bean>
+
+</beans>

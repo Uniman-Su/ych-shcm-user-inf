@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+  <context:annotation-config />
+
+  <context:component-scan base-package="com.ych.shcm.o2o.service,com.ych.shcm.o2o.action,com.ych.shcm.o2o.dao.mybatis,com.ych.shcm.o2o.autohome.spider.carmodel.service"></context:component-scan>
+
+  <context:property-placeholder location="/WEB-INF/config/config.properties" />
+
+  <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    <property name="basenames">
+      <list>
+        <value>/WEB-INF/config/i18n/message</value>
+        <value>classpath:/com/ych/shcm/o2o/i18n/message</value>
+      </list>
+    </property>
+  </bean>
+
+</beans>

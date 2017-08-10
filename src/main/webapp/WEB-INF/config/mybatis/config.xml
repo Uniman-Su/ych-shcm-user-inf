@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<typeHandlers>
+        <package name="com.ych.core.mybatis.type"/>
+        <package name="com.ych.core.model.typehandler"/>
+        <package name="com.ych.core.wechat.mybatis.type" />
+        <package name="com.ych.shcm.o2o.model.typehandler"/>
+	</typeHandlers>
+</configuration>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="600 seconds">
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Encoding>UTF-8</Encoding>
+		<File>d:/logs/shcm_userinf/log.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>d:/logs/shcm_userinf/log_%d{yyyy-MM-dd}.log.zip
+			</FileNamePattern>
+			<MaxHistory>30</MaxHistory>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>[%date][%-5level][%-10thread] [%file:%line] %msg%n</Pattern>
+		</layout>
+	</appender>
+
+    <appender name="HTTP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <Encoding>UTF-8</Encoding>
+      <File>d:/logs/shcm_userinf/http.log</File>
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <FileNamePattern>d:/logs/shcm_userinf/http_%d{yyyy-MM-dd}.log.zip
+        </FileNamePattern>
+        <MaxHistory>30</MaxHistory>
+      </rollingPolicy>
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <Pattern>[%date][%-5level][%-10thread] [%file:%line] %msg%n</Pattern>
+      </layout>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>[%date][%-5level][%-10thread] [%file:%line] %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <logger name="java" level="info" />
+    <logger name="javax" level="info" />
+    <logger name="org.springframework" level="info" />
+    <logger name="org.springframework.web" level="trace" />
+    <logger name="org.springframework.http" level="trace" />
+    <logger name="org.springframework.remoting" level="trace" />
+	<logger name="com.ych" level="trace" />
+    <logger name="net.sf.ehcache" level="trace" />
+    
+    <logger name="com.ych.core.httpclient" level="info" additivity="false">
+      <appender-ref ref="STDOUT" />
+      <appender-ref ref="HTTP" />
+    </logger>
+    <logger name="org.apache.http" level="trace" additivity="false">
+      <appender-ref ref="STDOUT" />
+      <appender-ref ref="HTTP" />
+    </logger>
+    
+	<root level="trace">
+		<appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+	</root>
+</configuration>

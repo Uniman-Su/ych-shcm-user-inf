@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+    <tx:annotation-driven />
+
+    <bean id="ychSHCMTxMgr"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="SHCMDataSource" />
+    </bean>
+
+    <alias name="ychSHCMTxMgr" alias="transactionManager"/>
+
+    <bean id="ychSHCMTxTemplate"
+          class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="ychSHCMTxMgr" />
+    </bean>
+
+    <alias name="ychSHCMTxTemplate" alias="sharedTransactionTemplate"/>
+
+</beans>
