@@ -1,6 +1,10 @@
 package com.ych.shcm.userinf.action;
 
-import com.ych.core.model.*;
+import com.ych.core.model.BaseWithCommonOperationResult;
+import com.ych.core.model.CommonOperationResult;
+import com.ych.core.model.CommonOperationResultWidthData;
+import com.ych.core.model.PagedList;
+import com.ych.core.model.SortOrder;
 import com.ych.shcm.o2o.action.CompositeAction;
 import com.ych.shcm.o2o.annotation.JWTAuth;
 import com.ych.shcm.o2o.model.Car;
@@ -20,9 +24,9 @@ import com.ych.shcm.o2o.service.CarService;
 import com.ych.shcm.o2o.service.OrderService;
 import com.ych.shcm.o2o.service.ShopService;
 import com.ych.shcm.o2o.service.UploadService;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 店铺基本信息获取相关的Action
@@ -53,6 +58,8 @@ public class ShopAction extends CompositeAction {
     private CarModelService carModelService;
     @Autowired
     private UploadService uploadService;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * 查询店铺信息
@@ -157,7 +164,7 @@ public class ShopAction extends CompositeAction {
         List<Shop> shops = shopService.getByUserId(getUser().getId());
         if (CollectionUtils.isEmpty(shops)) {
             ret.setResult(CommonOperationResult.IllegalOperation);
-            ret.setDescription("用户无门店");
+            ret.setDescription(messageSource.getMessage("order.validate.user.not.have.shop", null, Locale.getDefault()));
             return ret;
         }
         //QueryOrderAppointmentListParameter parameter = new QueryOrderAppointmentListParameter();

@@ -14,6 +14,7 @@ import com.ych.shcm.o2o.service.OrderService;
 import com.ych.shcm.o2o.service.ServiceProviderService;
 import com.ych.shcm.o2o.service.ServiceProviderSettleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 /**
  * 服务商结算Action
@@ -36,6 +38,8 @@ public class ServiceProviderSettleAction extends OperatorAction {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * 查询服务商结算日汇总数据的分页数据
@@ -110,7 +114,7 @@ public class ServiceProviderSettleAction extends OperatorAction {
             ret = serviceProviderSettleService.settledDate(id);
         } catch (RuntimeException e) {
             ret.setResult(CommonOperationResult.Failed);
-            ret.setDescription("更新异常");
+            ret.setDescription(messageSource.getMessage("system.common.operationFailed", null, Locale.getDefault()));
         }
         return ret;
     }
@@ -129,7 +133,7 @@ public class ServiceProviderSettleAction extends OperatorAction {
             serviceProviderSettleService.settledSummary(id);
         } catch (RuntimeException e) {
             ret.setResult(CommonOperationResult.Failed);
-            ret.setDescription("更新异常");
+            ret.setDescription(messageSource.getMessage("system.common.operationFailed", null, Locale.getDefault()));
         }
         return ret;
     }

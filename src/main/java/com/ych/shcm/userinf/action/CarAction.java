@@ -16,6 +16,7 @@ import com.ych.shcm.o2o.service.CarService;
 import com.ych.shcm.o2o.service.JWTService;
 import com.ych.shcm.o2o.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -44,6 +46,8 @@ public class CarAction extends UserAction {
     private JWTService jwtService;
     @Autowired
     private UploadService uploadService;
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * 取得车辆列表
@@ -128,7 +132,7 @@ public class CarAction extends UserAction {
         Car car = getCar();
         if (car == null) {
             ret.setResult(CommonOperationResult.NotExists);
-            ret.setDescription("车辆信息不存在");
+            ret.setDescription(messageSource.getMessage("order.validate.car.notExists", null, Locale.getDefault()));
             return ret;
         }
         ret.setData(car);
