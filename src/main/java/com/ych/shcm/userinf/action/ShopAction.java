@@ -164,7 +164,7 @@ public class ShopAction extends CompositeAction {
         List<Shop> shops = shopService.getByUserId(getUser().getId());
         if (CollectionUtils.isEmpty(shops)) {
             ret.setResult(CommonOperationResult.IllegalOperation);
-            ret.setDescription(messageSource.getMessage("order.validate.user.not.have.shop", null, Locale.getDefault()));
+            ret.setDescription(messageSource.getMessage("user.have.no.shop", null, Locale.getDefault()));
             return ret;
         }
         //QueryOrderAppointmentListParameter parameter = new QueryOrderAppointmentListParameter();

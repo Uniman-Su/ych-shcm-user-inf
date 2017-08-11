@@ -132,7 +132,7 @@ public class CarAction extends UserAction {
         Car car = getCar();
         if (car == null) {
             ret.setResult(CommonOperationResult.NotExists);
-            ret.setDescription(messageSource.getMessage("order.validate.car.notExists", null, Locale.getDefault()));
+            ret.setDescription(messageSource.getMessage("car.notExists", null, Locale.getDefault()));
             return ret;
         }
         ret.setData(car);
