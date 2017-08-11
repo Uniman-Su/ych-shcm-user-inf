@@ -90,12 +90,15 @@ public class WechatLoginAction {
      */
     @RequestMapping("guidance")
     public ModelAndView navigateIn(NavigateInParameter parameter) {
-        ModelAndView ret = new ModelAndView("thirdGuideInRedirect");
+        ModelAndView ret;
 
         CommonOperationResultWidthData<String> validateResult = wechatService.navigateIn(parameter);
         if (validateResult.getResult() == CommonOperationResult.Succeeded) {
+            ret = new ModelAndView("thirdGuideInRedirect");
             ret.addObject("url", validateResult.getData());
         } else {
+            ret = new ModelAndView("errorPageRedirect");
+            ret.addObject("actionUrl", errorPageUrl.getStringValue());
             ret.addObject("errorMsg", validateResult.getDescription());
         }
 
