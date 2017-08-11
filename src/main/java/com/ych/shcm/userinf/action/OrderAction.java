@@ -24,6 +24,7 @@ import com.ych.shcm.o2o.service.OrderService;
 import com.ych.shcm.o2o.service.ShopService;
 import com.ych.shcm.o2o.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -36,12 +37,13 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * 订单接口
  */
-@Controller("shcm.userinf.action.OrderAction")
+@Controller("shcm.useraction.OrderAction")
 public class OrderAction extends UserAction {
 
     @Autowired
@@ -58,6 +60,9 @@ public class OrderAction extends UserAction {
 
     @Autowired
     private UploadService uploadService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * 用户订单数量接口
@@ -88,8 +93,8 @@ public class OrderAction extends UserAction {
         CommonOperationResultWidthData<Map<String, Object>> ret = new CommonOperationResultWidthData();
         User user = getUser();
         try {
-            Assert.notNull(createOrderRequest.getCarId(), "车辆id不能为空");
-            Assert.notEmpty(createOrderRequest.getPacks(), "订单服务包不能为空");
+            Assert.notNull(createOrderRequest.getCarId(), messageSource.getMessage("order.validate.carId.required", null, Locale.getDefault()));
+            Assert.notEmpty(createOrderRequest.getPacks(), messageSource.getMessage("order.validate.packs.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -177,7 +182,7 @@ public class OrderAction extends UserAction {
             List<Shop> shops = shopService.getByUserId(getUser().getId());
             if (CollectionUtils.isEmpty(shops)) {
                 ret.setResult(CommonOperationResult.IllegalOperation);
-                ret.setDescription("用户暂无门店");
+                ret.setDescription(messageSource.getMessage("order.validate.empty.shop", null, Locale.getDefault()));
                 return ret;
             }
             parameter.setShopId(shops.get(0).getId());
@@ -218,13 +223,13 @@ public class OrderAction extends UserAction {
         CommonOperationResultWidthData<Order> ret = new CommonOperationResultWidthData();
         if (orderId == null) {
             ret.setResult(CommonOperationResult.IllegalArguments);
-            ret.setDescription("订单不能ID为空");
+            ret.setDescription(messageSource.getMessage("order.validate.orderId.required", null, Locale.getDefault()));
             return ret;
         }
         Order order = orderService.getById(orderId);
         if (order == null) {
             ret.setResult(CommonOperationResult.NotExists);
-            ret.setDescription("订单不存在");
+            ret.setDescription(messageSource.getMessage("order.validate.order.notExists", null, Locale.getDefault()));
             return ret;
         }
 
@@ -246,7 +251,7 @@ public class OrderAction extends UserAction {
     public CommonOperationResultWidthData<OrderBill> queryOrderBillByOrderId(@RequestParam BigDecimal orderId) {
         CommonOperationResultWidthData<OrderBill> ret = new CommonOperationResultWidthData();
         try {
-            Assert.notNull(orderId, "订单id不能为空");
+            Assert.notNull(orderId, messageSource.getMessage("order.validate.orderId.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -256,7 +261,7 @@ public class OrderAction extends UserAction {
         ret.setData(orderBill);
         if (orderBill == null) {
             ret.setResult(CommonOperationResult.NotExists);
-            ret.setDescription("订单开票信息不存在");
+            ret.setDescription(messageSource.getMessage("order.validate.orderBill.notExists", null, Locale.getDefault()));
         } else {
             ret.setResult(CommonOperationResult.Succeeded);
         }
@@ -346,17 +351,17 @@ public class OrderAction extends UserAction {
     public CommonOperationResultWidthData applyBill(@RequestBody OrderBill orderBill) {
         CommonOperationResultWidthData ret = new CommonOperationResultWidthData();
         try {
-            Assert.notNull(orderBill, "开票申请不能为空");
-            Assert.notNull(orderBill.getOrderId(), "订单id不能为空");
-            Assert.hasLength(orderBill.getBank(), "开户银行不能为空");
-            Assert.hasLength(orderBill.getBankAccount(), "银行账户不能为空");
-            Assert.hasLength(orderBill.getCompany(), "公司名不能为空");
-            Assert.hasLength(orderBill.getCompanyAddr(), "注册地址不能为空");
+            Assert.notNull(orderBill, messageSource.getMessage("order.validate.orderBill.required", null, Locale.getDefault()));
+            Assert.notNull(orderBill.getOrderId(), messageSource.getMessage("order.validate.orderId.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getBank(), messageSource.getMessage("order.validate.bank.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getBankAccount(), messageSource.getMessage("order.validate.bankAccount.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getCompany(), messageSource.getMessage("order.validate.companyName.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getCompanyAddr(), messageSource.getMessage("order.validate.companyAddr.required", null, Locale.getDefault()));
             //Assert.hasLength(orderBill.getCompanyPhone(), "公司电话不能为空");
-            Assert.hasLength(orderBill.getDeliverAddr(), "配送地址不能为空");
-            Assert.hasLength(orderBill.getTaxNo(), "纳税人识别代码不能为空");
-            Assert.hasLength(orderBill.getPtc(), "联系人不能为空");
-            Assert.hasLength(orderBill.getPhone(), "联系电话不能为空");
+            Assert.hasLength(orderBill.getDeliverAddr(), messageSource.getMessage("order.validate.deliverAddr.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getTaxNo(), messageSource.getMessage("order.validate.taxNo.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getPtc(), messageSource.getMessage("order.validate.ptc.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getPhone(), messageSource.getMessage("order.validate.phone.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -378,13 +383,13 @@ public class OrderAction extends UserAction {
     public CommonOperationResultWidthData evaluateOrder(@RequestBody OrderEvaluation orderEvaluation) {
         CommonOperationResultWidthData ret = new CommonOperationResultWidthData();
         try {
-            Assert.notNull(orderEvaluation, "评价不能为空");
-            Assert.notNull(orderEvaluation.getOrderId(), "订单id不能为空");
-            Assert.notNull(orderEvaluation.getSkill(), "技术能力评价不能为空");
-            Assert.notNull(orderEvaluation.getAttitude(), "服务态度不能为空");
-            Assert.notNull(orderEvaluation.getEfficiency(), "服务效率不能为空");
-            Assert.notNull(orderEvaluation.getEnvironment(), "店面环境不能为空");
-            Assert.notNull(orderEvaluation.getOverallEvaluation(), "总体评价不能为空");
+            Assert.notNull(orderEvaluation, messageSource.getMessage("order.validate.orderEvaluation.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getOrderId(), messageSource.getMessage("order.validate.orderId.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getSkill(), messageSource.getMessage("order.validate.orderEvaluation.skill.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getAttitude(), messageSource.getMessage("order.validate.orderEvaluation.attitude.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getEfficiency(), messageSource.getMessage("order.validate.orderEvaluation.efficiency.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getEnvironment(), messageSource.getMessage("order.validate.orderEvaluation.environment.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getOverallEvaluation(), messageSource.getMessage("order.validate.orderEvaluation.overallEvaluation.required", null, Locale.getDefault()));
 
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
