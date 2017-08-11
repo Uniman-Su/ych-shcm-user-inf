@@ -93,8 +93,8 @@ public class OrderAction extends UserAction {
         CommonOperationResultWidthData<Map<String, Object>> ret = new CommonOperationResultWidthData();
         User user = getUser();
         try {
-            Assert.notNull(createOrderRequest.getCarId(), messageSource.getMessage("carId.required", null, Locale.getDefault()));
-            Assert.notEmpty(createOrderRequest.getPacks(), messageSource.getMessage("packs.required", null, Locale.getDefault()));
+            Assert.notNull(createOrderRequest.getCarId(), messageSource.getMessage("car.id.required", null, Locale.getDefault()));
+            Assert.notEmpty(createOrderRequest.getPacks(), messageSource.getMessage("servicePack.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -182,7 +182,7 @@ public class OrderAction extends UserAction {
             List<Shop> shops = shopService.getByUserId(getUser().getId());
             if (CollectionUtils.isEmpty(shops)) {
                 ret.setResult(CommonOperationResult.IllegalOperation);
-                ret.setDescription(messageSource.getMessage("empty.shop", null, Locale.getDefault()));
+                ret.setDescription(messageSource.getMessage("user.shop.notBinded", null, Locale.getDefault()));
                 return ret;
             }
             parameter.setShopId(shops.get(0).getId());
@@ -223,13 +223,13 @@ public class OrderAction extends UserAction {
         CommonOperationResultWidthData<Order> ret = new CommonOperationResultWidthData();
         if (orderId == null) {
             ret.setResult(CommonOperationResult.IllegalArguments);
-            ret.setDescription(messageSource.getMessage("orderId.required", null, Locale.getDefault()));
+            ret.setDescription(messageSource.getMessage("order.id.required", null, Locale.getDefault()));
             return ret;
         }
         Order order = orderService.getById(orderId);
         if (order == null) {
             ret.setResult(CommonOperationResult.NotExists);
-            ret.setDescription(messageSource.getMessage("order.notExists", null, Locale.getDefault()));
+            ret.setDescription(messageSource.getMessage("order.id.notExists", null, Locale.getDefault()));
             return ret;
         }
 
@@ -251,7 +251,7 @@ public class OrderAction extends UserAction {
     public CommonOperationResultWidthData<OrderBill> queryOrderBillByOrderId(@RequestParam BigDecimal orderId) {
         CommonOperationResultWidthData<OrderBill> ret = new CommonOperationResultWidthData();
         try {
-            Assert.notNull(orderId, messageSource.getMessage("orderId.required", null, Locale.getDefault()));
+            Assert.notNull(orderId, messageSource.getMessage("order.id.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -261,7 +261,7 @@ public class OrderAction extends UserAction {
         ret.setData(orderBill);
         if (orderBill == null) {
             ret.setResult(CommonOperationResult.NotExists);
-            ret.setDescription(messageSource.getMessage("orderBill.notExists", null, Locale.getDefault()));
+            ret.setDescription(messageSource.getMessage("order.bill.notExists", null, Locale.getDefault()));
         } else {
             ret.setResult(CommonOperationResult.Succeeded);
         }
@@ -351,17 +351,17 @@ public class OrderAction extends UserAction {
     public CommonOperationResultWidthData applyBill(@RequestBody OrderBill orderBill) {
         CommonOperationResultWidthData ret = new CommonOperationResultWidthData();
         try {
-            Assert.notNull(orderBill, messageSource.getMessage("orderBill.required", null, Locale.getDefault()));
-            Assert.notNull(orderBill.getOrderId(), messageSource.getMessage("orderId.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getBank(), messageSource.getMessage("bank.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getBankAccount(), messageSource.getMessage("bankAccount.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getCompany(), messageSource.getMessage("companyName.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getCompanyAddr(), messageSource.getMessage("companyAddr.required", null, Locale.getDefault()));
+            Assert.notNull(orderBill, messageSource.getMessage("order.bill.required", null, Locale.getDefault()));
+            Assert.notNull(orderBill.getOrderId(), messageSource.getMessage("order.id.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getBank(), messageSource.getMessage("company.bank.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getBankAccount(), messageSource.getMessage("company.bankAccount.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getCompany(), messageSource.getMessage("company.name.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getCompanyAddr(), messageSource.getMessage("company.address.required", null, Locale.getDefault()));
             //Assert.hasLength(orderBill.getCompanyPhone(), "公司电话不能为空");
-            Assert.hasLength(orderBill.getDeliverAddr(), messageSource.getMessage("deliverAddr.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getTaxNo(), messageSource.getMessage("taxNo.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getPtc(), messageSource.getMessage("ptc.required", null, Locale.getDefault()));
-            Assert.hasLength(orderBill.getPhone(), messageSource.getMessage("phone.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getDeliverAddr(), messageSource.getMessage("order.bill.deliverAddr.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getTaxNo(), messageSource.getMessage("order.bill.taxNo.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getPtc(), messageSource.getMessage("order.bill.ptc.required", null, Locale.getDefault()));
+            Assert.hasLength(orderBill.getPhone(), messageSource.getMessage("company.phone.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -383,13 +383,13 @@ public class OrderAction extends UserAction {
     public CommonOperationResultWidthData evaluateOrder(@RequestBody OrderEvaluation orderEvaluation) {
         CommonOperationResultWidthData ret = new CommonOperationResultWidthData();
         try {
-            Assert.notNull(orderEvaluation, messageSource.getMessage("orderEvaluation.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getOrderId(), messageSource.getMessage("orderId.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getSkill(), messageSource.getMessage("skillEvaluation.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getAttitude(), messageSource.getMessage("attitudeEvaluation.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getEfficiency(), messageSource.getMessage("efficiencyEvaluation.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getEnvironment(), messageSource.getMessage("environmentEvaluation.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getOverallEvaluation(), messageSource.getMessage("overallEvaluation.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation, messageSource.getMessage("order.evaluation.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getOrderId(), messageSource.getMessage("order.id.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getSkill(), messageSource.getMessage("order.evaluation.skill.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getAttitude(), messageSource.getMessage("order.evaluation.attitude.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getEfficiency(), messageSource.getMessage("order.evaluation.efficiency.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getEnvironment(), messageSource.getMessage("order.evaluation.environment.required", null, Locale.getDefault()));
+            Assert.notNull(orderEvaluation.getOverallEvaluation(), messageSource.getMessage("order.evaluation.overall.required", null, Locale.getDefault()));
 
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
