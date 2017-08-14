@@ -1,28 +1,12 @@
 package com.ych.shcm.userinf.action;
 
-import com.ych.core.model.CommonOperationResult;
-import com.ych.core.model.CommonOperationResultWidthData;
-import com.ych.core.model.PagedList;
-import com.ych.shcm.o2o.action.UserAction;
-import com.ych.shcm.o2o.annotation.JWTAuth;
-import com.ych.shcm.o2o.model.Constants;
-import com.ych.shcm.o2o.model.Order;
-import com.ych.shcm.o2o.model.OrderAppointment;
-import com.ych.shcm.o2o.model.OrderBill;
-import com.ych.shcm.o2o.model.OrderEvaluation;
-import com.ych.shcm.o2o.model.OrderServicePack;
-import com.ych.shcm.o2o.model.OrderServicePackItem;
-import com.ych.shcm.o2o.model.OrderStatusCount;
-import com.ych.shcm.o2o.model.ServicePack;
-import com.ych.shcm.o2o.model.Shop;
-import com.ych.shcm.o2o.model.User;
-import com.ych.shcm.o2o.parameter.QueryOrderAppointmentListParameter;
-import com.ych.shcm.o2o.parameter.QueryOrderListParameter;
-import com.ych.shcm.o2o.service.CarModelService;
-import com.ych.shcm.o2o.service.CarService;
-import com.ych.shcm.o2o.service.OrderService;
-import com.ych.shcm.o2o.service.ShopService;
-import com.ych.shcm.o2o.service.UploadService;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -33,12 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.ych.core.model.CommonOperationResult;
+import com.ych.core.model.CommonOperationResultWidthData;
+import com.ych.core.model.PagedList;
+import com.ych.shcm.o2o.action.UserAction;
+import com.ych.shcm.o2o.annotation.JWTAuth;
+import com.ych.shcm.o2o.model.*;
+import com.ych.shcm.o2o.parameter.QueryOrderAppointmentListParameter;
+import com.ych.shcm.o2o.parameter.QueryOrderListParameter;
+import com.ych.shcm.o2o.service.*;
 
 /**
  * 订单接口
@@ -74,7 +61,7 @@ public class OrderAction extends UserAction {
     @RequestMapping("wxmp/order/myOrderStatusCount")
     public CommonOperationResultWidthData queryOrderNumGroupByType() {
 
-        CommonOperationResultWidthData<List<OrderStatusCount>> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<List<OrderStatusCount>> ret = new CommonOperationResultWidthData<>();
         ret.setData(orderService.getOrderCountGroupByType(getUser().getId()));
         ret.setResult(CommonOperationResult.Succeeded);
         return ret;
@@ -84,13 +71,14 @@ public class OrderAction extends UserAction {
      * 创建订单
      *
      * @param createOrderRequest
+     *         创建订单的请求
      * @return 结果
      */
     @JWTAuth(issuer = Constants.WECHAT_MP_ISSUER)
     @ResponseBody
     @RequestMapping("wxmp/order/createOrder")
     public CommonOperationResultWidthData<Map<String, Object>> createOrder(@RequestBody CreateOrderRequestBody createOrderRequest) {
-        CommonOperationResultWidthData<Map<String, Object>> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<Map<String, Object>> ret = new CommonOperationResultWidthData<>();
         User user = getUser();
         try {
             Assert.notNull(createOrderRequest.getCarId(), messageSource.getMessage("car.id.required", null, Locale.getDefault()));
@@ -173,8 +161,7 @@ public class OrderAction extends UserAction {
     @ResponseBody
     @RequestMapping({"console/order/queryList", "wxmp/order/queryList", "sone/order/queryList"})
     public CommonOperationResultWidthData<PagedList<Order>> queryOrderList(@RequestBody QueryOrderListParameter parameter, HttpServletRequest request) {
-
-        CommonOperationResultWidthData<PagedList<Order>> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<PagedList<Order>> ret = new CommonOperationResultWidthData<>();
         if (request.getServletPath().contains("wxmp/order/queryList")) {
             parameter.setNeedPacks(true);
             ret.setData(orderService.getOrderPageList(parameter));
@@ -197,13 +184,6 @@ public class OrderAction extends UserAction {
         } else {
             ret.setResult(CommonOperationResult.Succeeded);
             ret.setData(orderService.getOrderPageList(parameter));
-            for (Order order : ret.getData().getList()) {
-                order.setCar(carService.getCarById(order.getCarId()));
-                if (order.getShopId() != null) {
-                    order.setShop(shopService.getShopById(order.getShopId()));
-                }
-                order.setOrderBill(orderService.getOrderBillByOrderId(order.getId()));
-            }
         }
         ret.setResult(CommonOperationResult.Succeeded);
         return ret;
@@ -220,7 +200,7 @@ public class OrderAction extends UserAction {
     @ResponseBody
     @RequestMapping({"console/order/orderDetail", "wxmp/order/orderDetail", "sone/order/orderDetail"})
     public CommonOperationResultWidthData<Order> orderDetail(@RequestParam BigDecimal orderId) {
-        CommonOperationResultWidthData<Order> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<Order> ret = new CommonOperationResultWidthData<>();
         if (orderId == null) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(messageSource.getMessage("order.id.required", null, Locale.getDefault()));
@@ -249,7 +229,7 @@ public class OrderAction extends UserAction {
     @RequestMapping("order/queryOrderBill")
     @ResponseBody
     public CommonOperationResultWidthData<OrderBill> queryOrderBillByOrderId(@RequestParam BigDecimal orderId) {
-        CommonOperationResultWidthData<OrderBill> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<OrderBill> ret = new CommonOperationResultWidthData<>();
         try {
             Assert.notNull(orderId, messageSource.getMessage("order.id.required", null, Locale.getDefault()));
         } catch (IllegalArgumentException e) {
@@ -357,7 +337,6 @@ public class OrderAction extends UserAction {
             Assert.hasLength(orderBill.getBankAccount(), messageSource.getMessage("company.bankAccount.required", null, Locale.getDefault()));
             Assert.hasLength(orderBill.getCompany(), messageSource.getMessage("company.name.required", null, Locale.getDefault()));
             Assert.hasLength(orderBill.getCompanyAddr(), messageSource.getMessage("company.address.required", null, Locale.getDefault()));
-            //Assert.hasLength(orderBill.getCompanyPhone(), "公司电话不能为空");
             Assert.hasLength(orderBill.getDeliverAddr(), messageSource.getMessage("order.bill.deliverAddr.required", null, Locale.getDefault()));
             Assert.hasLength(orderBill.getTaxNo(), messageSource.getMessage("order.bill.taxNo.required", null, Locale.getDefault()));
             Assert.hasLength(orderBill.getPtc(), messageSource.getMessage("order.bill.ptc.required", null, Locale.getDefault()));
@@ -374,6 +353,7 @@ public class OrderAction extends UserAction {
      * 评价
      *
      * @param orderEvaluation
+     *         评价信息
      * @return 结果
      * 订单Id
      */
@@ -389,8 +369,6 @@ public class OrderAction extends UserAction {
             Assert.notNull(orderEvaluation.getAttitude(), messageSource.getMessage("order.evaluation.attitude.required", null, Locale.getDefault()));
             Assert.notNull(orderEvaluation.getEfficiency(), messageSource.getMessage("order.evaluation.efficiency.required", null, Locale.getDefault()));
             Assert.notNull(orderEvaluation.getEnvironment(), messageSource.getMessage("order.evaluation.environment.required", null, Locale.getDefault()));
-            Assert.notNull(orderEvaluation.getOverallEvaluation(), messageSource.getMessage("order.evaluation.overall.required", null, Locale.getDefault()));
-
         } catch (IllegalArgumentException e) {
             ret.setResult(CommonOperationResult.IllegalArguments);
             ret.setDescription(e.getMessage());
@@ -427,7 +405,7 @@ public class OrderAction extends UserAction {
     @RequestMapping({"wxmp/order/queryOrderAppointmentsOfShop", "wxmp/order/queryOrderAppointmentsOfUser"})
     @ResponseBody
     public CommonOperationResultWidthData<PagedList<OrderAppointment>> queryOrderAppointments(HttpServletRequest request, @RequestBody QueryOrderAppointmentListParameter parameter) {
-        CommonOperationResultWidthData<PagedList<OrderAppointment>> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<PagedList<OrderAppointment>> ret = new CommonOperationResultWidthData<>();
 
         if (request.getServletPath().contains("wxmp/order/queryOrderAppointmentsOfUser")) {
             parameter.setUserId(getUser().getId());
@@ -462,7 +440,7 @@ public class OrderAction extends UserAction {
     @RequestMapping("wxmp/order/orderAppointmentsDetail")
     @ResponseBody
     public CommonOperationResultWidthData<OrderAppointment> queryOrderAppointmentsDetail(@RequestParam BigDecimal id) {
-        CommonOperationResultWidthData<OrderAppointment> ret = new CommonOperationResultWidthData();
+        CommonOperationResultWidthData<OrderAppointment> ret = new CommonOperationResultWidthData<>();
         ret.setResult(CommonOperationResult.Succeeded);
         ret.setData(orderService.getOrderAppointmentById(id));
         return ret;
