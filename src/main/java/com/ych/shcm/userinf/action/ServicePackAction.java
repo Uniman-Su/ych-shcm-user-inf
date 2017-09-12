@@ -86,19 +86,23 @@ public class ServicePackAction extends UserAction {
 
         Car car = carService.getCarById(carId);
         boolean isFirstMaintenance = false;
+
         //首保
         if (car.getFirstOrderId() == null) {
             isFirstMaintenance = true;
         }
+
         //上牌时间判断
         boolean registrationFlag = false;
-        Date registrationDate = DateUtils.truncate(car.getRegistrationTime(), Calendar.MONTH);
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, -selectableSecondSPMonth.getIneterValue());
-        Date compareDate = DateUtils.truncate(calendar, Calendar.MONTH).getTime();
-        if (registrationDate.compareTo(compareDate) >= 0) {
-            //上牌时间超过指定月数
-            registrationFlag = true;
+        if (car.getRegistrationTime() != null) {
+            Date registrationDate = DateUtils.truncate(car.getRegistrationTime(), Calendar.MONTH);
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MONTH, -selectableSecondSPMonth.getIneterValue());
+            Date compareDate = DateUtils.truncate(calendar, Calendar.MONTH).getTime();
+            if (registrationDate.compareTo(compareDate) >= 0) {
+                //上牌时间超过指定月数
+                registrationFlag = true;
+            }
         }
 
         List<ServicePack> servicePacks = carService.getServicePackOfCar(car.getModelId());
