@@ -29,8 +29,8 @@ import java.util.Map;
 /**
  * 服务接口
  */
-@Controller("shcm.userinf.action.ServiceAction")
-public class ServiceAction extends UserAction {
+@Controller("shcm.userinf.action.ServicePackAction")
+public class ServicePackAction extends UserAction {
 
     @Autowired
     ServicePackService servicePackService;
@@ -77,21 +77,31 @@ public class ServiceAction extends UserAction {
 
         Car car = carService.getCarById(carId);
         boolean isFirstMaintenance = false;
+        boolean mileageFlag = false;
         //首保
         if (car.getFirstOrderId() == null) {
             isFirstMaintenance = true;
+        }
+        if (car.getMileage() > 20000l) {
+            mileageFlag = true;
         }
 
         List<ServicePack> servicePacks = carService.getServicePackOfCar(car.getModelId());
         List<CanChooseServicePack> canChooseServicePacks = new ArrayList<>();
         for (ServicePack servicePack : servicePacks) {
             CanChooseServicePack canChooseServicePack = new CanChooseServicePack();
-            if (isFirstMaintenance) {
+            if (isFirstMaintenance && !mileageFlag) {
                 //首保把所有项目不可选
                 canChooseServicePack.setCanChoose(false);
             }
             BeanUtils.copyProperties(servicePack, canChooseServicePack);
             canChooseServicePacks.add(canChooseServicePack);
+        }
+
+        if (mileageFlag) {
+            canChooseServicePacks.get(1).setSelected(true);
+        } else {
+            canChooseServicePacks.get(0).setSelected(true);
         }
         //首服务始终可选
         if (CollectionUtils.isNotEmpty(canChooseServicePacks)) {
@@ -109,6 +119,8 @@ public class ServiceAction extends UserAction {
     public static class CanChooseServicePack extends ServicePack {
 
         boolean canChoose = true;
+
+        boolean selected = false;
 
         /**
          * Getter for property 'canChoose'.
@@ -129,6 +141,24 @@ public class ServiceAction extends UserAction {
             this.canChoose = canChoose;
         }
 
+        /**
+         * Getter for property 'selected'.
+         *
+         * @return Value for property 'selected'.
+         */
+        public boolean isSelected() {
+            return selected;
+        }
+
+        /**
+         * Setter for property 'selected'.
+         *
+         * @param selected
+         *         Value to set for property 'selected'.
+         */
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+        }
     }
 
     /**
