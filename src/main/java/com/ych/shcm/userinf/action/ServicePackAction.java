@@ -2,6 +2,7 @@ package com.ych.shcm.userinf.action;
 
 import com.ych.core.model.CommonOperationResult;
 import com.ych.core.model.CommonOperationResultWidthData;
+import com.ych.core.model.SystemParameterHolder;
 import com.ych.shcm.o2o.action.UserAction;
 import com.ych.shcm.o2o.annotation.JWTAuth;
 import com.ych.shcm.o2o.dao.ServiceItemDao;
@@ -12,7 +13,9 @@ import com.ych.shcm.o2o.model.ServicePack;
 import com.ych.shcm.o2o.service.CarService;
 import com.ych.shcm.o2o.service.ServicePackService;
 import com.ych.shcm.o2o.service.UploadService;
+import com.ych.shcm.o2o.service.systemparamholder.SelectableSecondSPMonth;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,8 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +46,9 @@ public class ServicePackAction extends UserAction {
     private ServiceItemDao serviceItemDao;
     @Autowired
     private UploadService uploadService;
+
+    @Resource(name = SelectableSecondSPMonth.NAME)
+    private SystemParameterHolder selectableSecondSPMonth;
 
     /**
      * 查询车辆可用服务包
@@ -77,35 +86,45 @@ public class ServicePackAction extends UserAction {
 
         Car car = carService.getCarById(carId);
         boolean isFirstMaintenance = false;
-        boolean mileageFlag = false;
         //首保
         if (car.getFirstOrderId() == null) {
             isFirstMaintenance = true;
         }
-        if (car.getMileage() > 20000l) {
-            mileageFlag = true;
+        //上牌时间判断
+        boolean registrationFlag = false;
+        Date registrationDate = DateUtils.truncate(car.getRegistrationTime(), Calendar.MONTH);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -selectableSecondSPMonth.getIneterValue());
+        Date compareDate = DateUtils.truncate(calendar, Calendar.MONTH).getTime();
+        if (registrationDate.compareTo(compareDate) >= 0) {
+            //上牌时间超过指定月数
+            registrationFlag = true;
         }
 
         List<ServicePack> servicePacks = carService.getServicePackOfCar(car.getModelId());
         List<CanChooseServicePack> canChooseServicePacks = new ArrayList<>();
         for (ServicePack servicePack : servicePacks) {
             CanChooseServicePack canChooseServicePack = new CanChooseServicePack();
-            if (isFirstMaintenance && !mileageFlag) {
+            if (isFirstMaintenance & !registrationFlag) {
                 //首保把所有项目不可选
                 canChooseServicePack.setCanChoose(false);
             }
             BeanUtils.copyProperties(servicePack, canChooseServicePack);
             canChooseServicePacks.add(canChooseServicePack);
         }
-
-        if (mileageFlag) {
-            canChooseServicePacks.get(1).setSelected(true);
-        } else {
-            canChooseServicePacks.get(0).setSelected(true);
-        }
         //首服务始终可选
         if (CollectionUtils.isNotEmpty(canChooseServicePacks)) {
             canChooseServicePacks.get(0).setCanChoose(true);
+            // 指定注册月份以内的车辆默认选择第二个服务
+            if (canChooseServicePacks.size() >= 2) {
+                if (registrationFlag) {
+                    canChooseServicePacks.get(1).setSelected(true);
+                } else {
+                    canChooseServicePacks.get(0).setSelected(true);
+                }
+            } else {
+                canChooseServicePacks.get(0).setSelected(true);
+            }
         }
 
         ret.setResult(CommonOperationResult.Succeeded);
